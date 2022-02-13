@@ -16,6 +16,13 @@ class Post {
   });
 }
 
+class Comment {
+  String author;
+  String text;
+
+  Comment({required this.author, required this.text});
+}
+
 class StateModel {
   String id;
   String name;
@@ -35,4 +42,11 @@ class User {
     required this.name,
     required this.lastName,
   });
+}
+
+class Error {
+  bool exist;
+  String message;
+
+  Error(this.exist, this.message);
 }

@@ -24,20 +24,44 @@ class _HomeScreenState extends State<HomeScreen> {
   final lastNameController = TextEditingController();
 
   int index = 0;
+  bool error = false;
 
   Future<Map> getStates() async {
-    final result = await http.get(Uri.parse('http://localhost:3000/state/get'));
-    return json.decode(result.body);
+    try {
+      final result =
+          await http.get(Uri.parse('http://localhost:3000/state/get'));
+      print('updated');
+      return json.decode(result.body);
+    } catch (e) {
+      error = true;
+      setState(() {});
+      return {"error": "yes"};
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         bottomNavigationBar: buildBottomNavigationBar(context),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {});
+          },
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Icon(Icons.update_sharp),
+        ),
         appBar: AppBar(
           title: Text('خوارزمی'),
         ),
-        body: index == 0
+        body: buildR(context));
+  }
+
+  Widget buildR(BuildContext context) {
+    return error
+        ? Center(
+            child: Text('اینترنتت را چک کن'),
+          )
+        : (index == 0
             ? buildHomePage()
             : index == 1
                 ? buildSettingsPage(context)
@@ -172,7 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           TextField(
                             controller: nameController,
-                            
                             decoration: InputDecoration(labelText: 'نام'),
                           ),
                           SizedBox(

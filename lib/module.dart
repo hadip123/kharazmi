@@ -38,6 +38,12 @@ class Account {
   }
 }
 
+// class Comment1 {
+//   static Future<Response> createComment(Comment comment) async {
+//     final Response response = await post();
+//   }
+// }
+
 class Post1 {
   static Future<Response> createPost(Post post1) async {
     print(await Data.get('cookie'));
@@ -45,7 +51,7 @@ class Post1 {
         Uri.parse('http://localhost:3000/post/create'),
         headers: {
           "Content-Type": "application/json",
-          "cookie": await Data.get('cookie')
+          "cookie": (await Data.get('cookie'))
         },
         body: jsonEncode({
           "stateId": post1.stateId,
@@ -53,7 +59,7 @@ class Post1 {
           "description": post1.description,
           "text": post1.text,
           "seens": post1.seens,
-          "rate": post1.rate,
+          "rates": [],
         }));
 
     return response;

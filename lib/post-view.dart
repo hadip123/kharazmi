@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart';
+import 'package:kharazmi/model.dart';
 
 class PostView extends StatefulWidget {
   String postId;
@@ -19,22 +20,26 @@ class _PostViewState extends State<PostView> {
   int rate = 0;
   String postName = 'صبر کنید...';
   int seens = 0;
+  Error error = Error(false, '');
   _PostViewState(this.postId);
 
-  Future<Map> getPost() async {
+  Future<Response> getPost() async {
     final Response response =
         await get(Uri.parse('http://localhost:3000/post/$postId'));
 
-    return jsonDecode(response.body);
+    return response;
   }
 
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      final Map result = await getPost();
-      rate = result['data']['rate'];
-      postName = result['data']['title'];
-      seens = result['data']['seens'];
+      final Response response = await getPost();
+      final Map result = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        rate = result['data']['rate'];
+        postName = result['data']['title'];
+        seens = result['data']['seen'];
+      }
       setState(() {});
     });
     super.initState();
@@ -54,7 +59,7 @@ class _PostViewState extends State<PostView> {
                 Icons.star,
                 color: Colors.yellow,
               ),
-              Text(rate.toString())
+              Text('$rate')
             ],
           ),
         ),
@@ -83,9 +88,9 @@ class _PostViewState extends State<PostView> {
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder(
             future: getPost(),
-            builder: (context, AsyncSnapshot<Map> snapshot) {
+            builder: (context, AsyncSnapshot<Response> snapshot) {
               if (snapshot.hasData) {
-                final Map post = snapshot.data!['data'];
+                final Map post = jsonDecode(snapshot.data!.body)['data'];
                 final String author = post['author'];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
