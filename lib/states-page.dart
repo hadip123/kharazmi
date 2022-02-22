@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:kharazmi/module.dart';
 import 'package:kharazmi/post-create.dart';
 import 'package:kharazmi/post-view.dart';
 
@@ -22,8 +23,7 @@ class _StatePageState extends State<StatePage> {
   _StatePageState(this.stateId);
 
   Future<Map> getPosts() async {
-    final Response result =
-        await get(Uri.parse('http://localhost:3000/post/state/$stateId'));
+    final Response result = await get(Uri.parse('$host/post/state/$stateId'));
 
     return jsonDecode(result.body);
   }
@@ -31,10 +31,20 @@ class _StatePageState extends State<StatePage> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      final Response response =
-          await get(Uri.parse('http://localhost:3000/state/$stateId'));
-      print(jsonDecode(response.body)['data']);
-
+      final Response response = await get(Uri.parse('$host/state/$stateId'));
+      if (response.statusCode == 404) {
+        final SnackBar error = SnackBar(
+            content: Text(
+          'استان پیدا نشد',
+          style: Theme.of(context)
+              .textTheme
+              .bodyText1!
+              .copyWith(color: Colors.white),
+          textDirection: TextDirection.rtl,
+        ));
+        ScaffoldMessenger.of(context).showSnackBar(error);
+        return;
+      }
       setState(() {
         stateName = jsonDecode(response.body)['data'];
       });
@@ -45,16 +55,7 @@ class _StatePageState extends State<StatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => PostCreate(stateId: stateId)));
-          },
-          child: Icon(Icons.post_add),
-          elevation: 0,
-          backgroundColor: Theme.of(context).primaryColor),
+      floatingActionButton: buildFloatingActionButton(),
       appBar: AppBar(
         title: Text(stateName),
       ),
@@ -66,28 +67,7 @@ class _StatePageState extends State<StatePage> {
               return ListView.builder(
                   itemCount: state.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => PostView(state[index]['_id'])));
-                      },
-                      title: Text(
-                        state[index]['title'],
-                        textDirection: TextDirection.rtl,
-                      ),
-                      subtitle: Text(
-                        state[index]['description'],
-                        textDirection: TextDirection.rtl,
-                      ),
-                      trailing: CircleAvatar(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          child: Text(
-                            state[index]['rate'].toString(),
-                            style: TextStyle(color: Colors.yellow),
-                          )),
-                    );
+                    return buildPostListTile(state, index);
                   });
             }
 
@@ -95,6 +75,57 @@ class _StatePageState extends State<StatePage> {
               child: CircularProgressIndicator(),
             );
           }),
+    );
+  }
+
+  Widget buildFloatingActionButton() {
+    return FutureBuilder(
+        future: Account.checkLogin(),
+        builder: (BuildContext context, AsyncSnapshot<Response> snapshot) {
+          if (snapshot.hasData) {
+            final Response response = snapshot.data!;
+            if (response.statusCode == 200) {
+              return FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => PostCreate(stateId: stateId)));
+                  },
+                  child: Icon(Icons.post_add),
+                  elevation: 0,
+                  backgroundColor: Theme.of(context).primaryColor);
+            } else if (response.statusCode == 403) {
+              return Container();
+            }
+          }
+          return Center(
+            child: CircularProgressIndicator(
+                color: Theme.of(context).primaryColor),
+          );
+        });
+  }
+
+  Widget buildPostListTile(List<dynamic> state, int index) {
+    return ListTile(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => PostView(state[index]['_id'])));
+      },
+      title: Text(
+        state[index]['title'],
+        textDirection: TextDirection.rtl,
+      ),
+      subtitle: Text(
+        state[index]['description'],
+        textDirection: TextDirection.rtl,
+      ),
+      trailing: CircleAvatar(
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Text(
+            state[index]['rate'].toString(),
+            style: TextStyle(color: Colors.yellow),
+          )),
     );
   }
 }

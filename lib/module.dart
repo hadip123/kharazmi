@@ -2,13 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
+import 'config.dart';
 import 'package:kharazmi/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const String host = Configs.host;
+
 class Account {
   static Future<Response> login(String username, String password) async {
-    final Response response = await post(
-        Uri.parse('http://localhost:3000/login'),
+    final Response response = await post(Uri.parse('$host/login'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"username": username, "password": password}));
 
@@ -16,39 +18,76 @@ class Account {
   }
 
   static Future<Response> checkLogin() async {
-    print(await Data.get('cookie'));
-    final Response response = await get(Uri.parse('http://localhost:3000/'),
+    final Response response = await get(Uri.parse('$host/'),
         headers: {"cookie": (await Data.get('cookie'))});
 
     return response;
   }
 
   static Future<Response> register(User user) async {
-    final Response response =
-        await post(Uri.parse('http://localhost:3000/user/register'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'username': user.username,
-              'password': user.password,
-              'name': user.name,
-              'lastName': user.lastName
-            }));
+    final Response response = await post(Uri.parse('$host/user/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': user.username,
+          'password': user.password,
+          'name': user.name,
+          'lastName': user.lastName
+        }));
+
+    return response;
+  }
+
+  static Future<Response> updateProfile(String name, String lastName) async {
+    final Response response = await post(Uri.parse('$host/user/info/update'),
+        headers: {
+          'Content-Type': 'application/json',
+          'cookie': (await Data.get('cookie'))
+        },
+        body: jsonEncode({"name": name, "lastName": lastName}));
 
     return response;
   }
 }
 
-// class Comment1 {
-//   static Future<Response> createComment(Comment comment) async {
-//     final Response response = await post();
-//   }
-// }
+class Comment1 {
+  static Future<Response> createComment(Comment comment) async {
+    final Response response = await post(Uri.parse('$host/comment/create'),
+        headers: {
+          'content-type': 'application/json',
+          'cookie': (await Data.get('cookie'))
+        },
+        body: jsonEncode({"text": comment.text, 'postId': comment.postId}));
+
+    return response;
+  }
+
+  static Future<Response> getComments(String postId) async {
+    final Response response =
+        await get(Uri.parse('$host/comment/post/$postId'));
+
+    return response;
+  }
+}
+
+class Rate {
+  static Future<Response> rate(double rate, String postId) async {
+    final Response response = await post(Uri.parse('$host/rate'),
+        headers: {'content-type': 'application/json'},
+        body: jsonEncode({'postId': postId, 'rate': rate}));
+
+    return response;
+  }
+
+  static Future<Response> getRate(String postId) async {
+    final Response response = await get(Uri.parse('$host/rate/$postId'));
+
+    return response;
+  }
+}
 
 class Post1 {
   static Future<Response> createPost(Post post1) async {
-    print(await Data.get('cookie'));
-    final Response response = await post(
-        Uri.parse('http://localhost:3000/post/create'),
+    final Response response = await post(Uri.parse('$host/post/create'),
         headers: {
           "Content-Type": "application/json",
           "cookie": (await Data.get('cookie'))
@@ -60,7 +99,7 @@ class Post1 {
           "text": post1.text,
           "seens": post1.seens,
           "rates": [],
-        }));
+        })); 
 
     return response;
   }
@@ -68,8 +107,7 @@ class Post1 {
 
 class StateModule {
   static Future<Response> getStates() async {
-    final Response response =
-        await get(Uri.parse('http://localhost:3000/state/get'));
+    final Response response = await get(Uri.parse('$host/state/get'));
 
     return response;
   }

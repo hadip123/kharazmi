@@ -6,9 +6,9 @@ import 'package:kharazmi/home-screen.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: HomeScreen(),
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
+      home: HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
         textTheme: TextTheme(
             bodyText1: GoogleFonts.notoSansArabic(),
             bodyText2: GoogleFonts.balooBhaijaan2()),
@@ -28,6 +28,6 @@ void main() {
             elevation: 0,
             titleTextStyle: GoogleFonts.notoKufiArabic(fontSize: 20),
             backgroundColor: Colors.indigoAccent,
-            shadowColor: Colors.white)),
-  ));
+            shadowColor: Colors.white),
+      )));
 }

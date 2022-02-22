@@ -1,10 +1,12 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:kharazmi/config.dart';
 import 'package:kharazmi/login.dart';
 import 'package:kharazmi/module.dart';
 import 'package:kharazmi/register.dart';
@@ -28,9 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<Map> getStates() async {
     try {
-      final result =
-          await http.get(Uri.parse('http://localhost:3000/state/get'));
-      print('updated');
+      final result = await http.get(Uri.parse('${Configs.host}/state/get'));
       return json.decode(result.body);
     } catch (e) {
       error = true;
@@ -49,7 +49,9 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           backgroundColor: Theme.of(context).primaryColor,
           child: Icon(Icons.update_sharp),
+          elevation: 0,
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         appBar: AppBar(
           title: Text('خوارزمی'),
         ),
@@ -178,72 +180,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     shadowColor: Colors.indigoAccent,
                     elevation: 10,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          ListTile(
-                            title: Text(
-                              'پروفایل',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText2!
-                                  .copyWith(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold),
-                              textDirection: TextDirection.rtl,
-                            ),
-                          ),
-                          TextField(
-                            controller: nameController,
-                            decoration: InputDecoration(labelText: 'نام'),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          TextField(
-                            controller: lastNameController,
-                            decoration:
-                                InputDecoration(labelText: 'نام خانوادگی'),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(size.width, 40),
-                                  elevation: 0,
-                                  primary: Theme.of(context).primaryColor),
-                              child: Text(
-                                'بروزرسانی',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyText1!
-                                    .copyWith(
-                                        fontSize: 16, color: Colors.white),
-                              )),
-                          Spacer(),
-                          ElevatedButton(
-                              onPressed: () async {
-                                await Data.remove('cookie');
-                                setState(() {});
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(size.width, 40),
-                                  elevation: 0,
-                                  primary: Theme.of(context).errorColor),
-                              child: Text(
-                                'خروج',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyText1!
-                                    .copyWith(
-                                        fontSize: 16, color: Colors.white),
-                              )),
-                        ],
-                      ),
-                    ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: buildProfileFrom(size)),
                   ),
                 ),
               );
@@ -254,6 +192,96 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         });
     ;
+  }
+
+  Widget buildProfileFrom(Size size) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        ListTile(
+          title: Text(
+            'پروفایل',
+            style: Theme.of(context)
+                .textTheme
+                .bodyText2!
+                .copyWith(fontSize: 17, fontWeight: FontWeight.bold),
+            textDirection: TextDirection.rtl,
+          ),
+        ),
+        TextField(
+          controller: nameController,
+          decoration: InputDecoration(labelText: 'نام'),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        TextField(
+          controller: lastNameController,
+          decoration: InputDecoration(labelText: 'نام خانوادگی'),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        ElevatedButton(
+            onPressed: () async {
+              final http.Response response = await Account.updateProfile(
+                  nameController.text, lastNameController.text);
+              if (response.statusCode == 201) {
+                final success = SnackBar(
+                    content: Text(
+                  'عملیات موفق بود',
+                  style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                        color: Colors.white,
+                      ),
+                  textDirection: TextDirection.rtl,
+                ));
+
+                ScaffoldMessenger.of(context).showSnackBar(success);
+              } else if (response.statusCode == 400) {
+                final List<dynamic> errors =
+                    jsonDecode(response.body)['message'];
+                final error = SnackBar(
+                    content: Text(
+                  errors.join('\n'),
+                  style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                        color: Colors.white,
+                      ),
+                  textDirection: TextDirection.rtl,
+                ));
+
+                ScaffoldMessenger.of(context).showSnackBar(error);
+              } else if (response.statusCode == 404) {}
+            },
+            style: ElevatedButton.styleFrom(
+                fixedSize: Size(size.width, 40),
+                elevation: 0,
+                primary: Theme.of(context).primaryColor),
+            child: Text(
+              'بروزرسانی',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1!
+                  .copyWith(fontSize: 16, color: Colors.white),
+            )),
+        Spacer(),
+        ElevatedButton(
+            onPressed: () async {
+              await Data.remove('cookie');
+              setState(() {});
+            },
+            style: ElevatedButton.styleFrom(
+                fixedSize: Size(size.width, 40),
+                elevation: 0,
+                primary: Theme.of(context).errorColor),
+            child: Text(
+              'خروج',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1!
+                  .copyWith(fontSize: 16, color: Colors.white),
+            )),
+      ],
+    );
   }
 
   Widget buildAboutPage(BuildContext context) {
@@ -271,6 +299,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   .titleTextStyle!
                   .copyWith(fontSize: 17),
               textDirection: TextDirection.rtl,
+            ),
+          ),
+          Center(
+            child: CircleAvatar(
+              radius: 100,
+              child: Text(
+                '80',
+                style: TextStyle(fontSize: 80),
+              ),
             ),
           )
         ],

@@ -17,10 +17,10 @@ class Post {
 }
 
 class Comment {
-  String author;
+  String postId;
   String text;
 
-  Comment({required this.author, required this.text});
+  Comment({required this.postId, required this.text});
 }
 
 class StateModel {

@@ -40,7 +40,6 @@ class _PostCreateState extends State<PostCreate> {
 
         selectedState = states.firstWhere((element) => element.id == stateId);
 
-        print(selectedState.id + " - " + selectedState.name);
         setState(() {});
       }
     });
@@ -67,15 +66,12 @@ class _PostCreateState extends State<PostCreate> {
               text: 'await textPost.getText()',
               seens: 0,
               rate: 0));
-
-          print(jsonDecode(response.body));
         },
         child: Icon(Icons.done_outline),
       ),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
-          // ignore: prefer_const_literals_to_create_immutables
           children: [
             TextField(
               textAlign: TextAlign.right,
@@ -125,7 +121,6 @@ class _PostCreateState extends State<PostCreate> {
                       onChanged: (value) {
                         selectedState =
                             states.firstWhere((element) => element.id == value);
-                        print(selectedState.id + " - " + selectedState.name);
                         setState(() {});
                       },
                       value: selectedState.id,
