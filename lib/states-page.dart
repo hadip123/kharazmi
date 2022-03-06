@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:kharazmi/components/post_item.dart';
 import 'package:kharazmi/module.dart';
 import 'package:kharazmi/post-create.dart';
 import 'package:kharazmi/post-view.dart';
@@ -67,7 +68,12 @@ class _StatePageState extends State<StatePage> {
               return ListView.builder(
                   itemCount: state.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return buildPostListTile(state, index);
+                    // return buildPostListTile(state, index);
+                    return PostItem(
+                        title: state[index]['title'],
+                        description: state[index]['description'],
+                        rate: state[index]['rate'].toString(),
+                        postId: state[index]['_id']);
                   });
             }
 

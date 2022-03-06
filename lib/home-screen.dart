@@ -5,12 +5,18 @@ import 'dart:developer';
 
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:kharazmi/about_us.dart';
+import 'package:kharazmi/components/all_posts.dart';
+import 'package:kharazmi/components/best_posts.dart';
+import 'package:kharazmi/components/main-page.dart';
 import 'package:kharazmi/config.dart';
 import 'package:kharazmi/login.dart';
 import 'package:kharazmi/module.dart';
 import 'package:kharazmi/register.dart';
 import 'package:kharazmi/states-page.dart';
+import 'package:kharazmi/thelion.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -45,15 +51,16 @@ class _HomeScreenState extends State<HomeScreen> {
         bottomNavigationBar: buildBottomNavigationBar(context),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
+            build(context);
             setState(() {});
           },
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Color.fromARGB(255, 66, 51, 7),
           child: Icon(Icons.update_sharp),
-          elevation: 0,
+          elevation: 1,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         appBar: AppBar(
-          title: Text('خوارزمی'),
+          title: Text('سفرینو'),
         ),
         body: buildR(context));
   }
@@ -64,7 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text('اینترنتت را چک کن'),
           )
         : (index == 0
-            ? buildHomePage()
+            ? MainPage(
+                states: buildHomePage(),
+                bestPosts: BestPosts(),
+                allPosts: AllPosts(),
+              )
             : index == 1
                 ? buildSettingsPage(context)
                 : buildAboutPage(context));
@@ -123,29 +134,145 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (_, int index) {
                     final int numberPosts =
                         result['data'][index]['numberOfPosts'];
-                    final postsRate = result['data'][index]['averageOfRates'];
+                    final postsRate =
+                        result['data'][index]['averageOfRates'] == 'NaN'
+                            ? '0'
+                            : result['data'][index]['averageOfRates'];
 
                     final String stateName = result['data'][index]['name'];
-                    return ListTile(
-                      onTap: () async {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => StatePage(
-                                    stateId: result['data'][index]['id'])));
-                      },
-                      title: Text(
-                        '${index + 1} - $stateName',
-                        textDirection: TextDirection.rtl,
-                        style: Theme.of(context).textTheme.bodyText1,
+                    // return ListTile(
+                    //   onTap: () async {
+                    //     // Navigator.push(
+                    //     //     context,
+                    //     //     MaterialPageRoute(
+                    //     //         builder: (_) => StatePage(
+                    //     //             stateId: result['data'][index]['id'])));
+                    //     Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: ((context) => QuizScreen())));
+                    //   },
+                    //   title: Text(
+                    //     '${index + 1} - $stateName',
+                    //     textDirection: TextDirection.rtl,
+                    //     style: Theme.of(context).textTheme.bodyText1,
+                    //   ),
+                    //   subtitle: Text(
+                    //     'تعداد پست ها: $numberPosts، رتبه پست ها: $postsRate',
+                    //     textDirection: TextDirection.rtl,
+                    //     style: Theme.of(context)
+                    //         .textTheme
+                    //         .bodyText1!
+                    //         .copyWith(color: Colors.grey),
+                    //   ),
+                    // );
+                    return Container(
+                      margin: EdgeInsets.all(10.0),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white54,
+                        border: Border.all(
+                          color: Color.fromARGB(255, 220, 218, 228),
+                          width: 3.0,
+                        ),
+                        borderRadius: BorderRadius.circular(20.0),
                       ),
-                      subtitle: Text(
-                        'تعداد پست ها: $numberPosts، رتبه پست ها: $postsRate',
-                        textDirection: TextDirection.rtl,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1!
-                            .copyWith(color: Colors.grey),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(7.0),
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Padding(
+                                  padding: EdgeInsets.all(7.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        stateName,
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Color(0xFF373737),
+                                        ),
+                                        textDirection: TextDirection.rtl,
+                                      ),
+                                      Text(
+                                        'رتبه پست ها: $postsRate',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                          color: Color(0xFF373737),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  radius: 34.0,
+                                  backgroundColor:
+                                      Color.fromARGB(22, 26, 66, 26),
+                                  child: Image.network(
+                                    (result['data'][index]['image'] ??
+                                        'https://picsum.photos/45'),
+                                    width: 59,
+                                    height: 59,
+                                    alignment: Alignment.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text('تعداد نوشته ها: $numberPosts'),
+                          ),
+                          Container(
+                            margin: EdgeInsets.all(7.0),
+                            width: double.infinity,
+                            height: 40.0,
+                            child: ElevatedButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).secondaryHeaderColor,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  )),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => StatePage(
+                                            stateId: result['data'][index]
+                                                ['id'])));
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                // ignore: prefer_const_literals_to_create_immutables
+                                children: [
+                                  SizedBox(width: 20),
+                                  Spacer(),
+                                  Text(
+                                    'دیدن نوشته ها',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1!
+                                        .copyWith(color: Colors.white),
+                                  ),
+                                  Spacer(),
+                                  CircleAvatar(
+                                    backgroundColor: Colors.transparent,
+                                    child: Icon(Icons.arrow_forward),
+                                  ),
+                                  SizedBox(width: 20),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   });
@@ -285,34 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildAboutPage(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(1.0),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          ListTile(
-            title: Text(
-              'درباره ما',
-              style: Theme.of(context)
-                  .appBarTheme
-                  .titleTextStyle!
-                  .copyWith(fontSize: 17),
-              textDirection: TextDirection.rtl,
-            ),
-          ),
-          Center(
-            child: CircleAvatar(
-              radius: 100,
-              child: Text(
-                '80',
-                style: TextStyle(fontSize: 80),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+    return AboutUs();
   }
 
   Widget buildLoginForm(BuildContext context) {
@@ -327,7 +427,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context, MaterialPageRoute(builder: (_) => LoginPage()));
           },
           trailing: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).primaryColor.withOpacity(1),
               child: Icon(Icons.login)),
           title: Text(
             'ورود به حساب کاربری',
@@ -335,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: Theme.of(context)
                 .appBarTheme
                 .titleTextStyle!
-                .copyWith(fontSize: 16),
+                .copyWith(fontSize: 16, color: Colors.black),
           ),
         ),
         ListTile(
@@ -344,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context, MaterialPageRoute(builder: (_) => Register()));
           },
           trailing: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).primaryColor.withOpacity(1),
               child: Icon(Icons.account_box_rounded)),
           title: Text(
             'ثبت نام',
@@ -352,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: Theme.of(context)
                 .appBarTheme
                 .titleTextStyle!
-                .copyWith(fontSize: 16),
+                .copyWith(fontSize: 16, color: Colors.black),
           ),
         ),
       ],

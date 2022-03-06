@@ -9,11 +9,16 @@ void main() {
       home: HomeScreen(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        tabBarTheme: TabBarTheme(
+            labelStyle: GoogleFonts.notoSansArabic(), labelColor: Colors.black),
+        secondaryHeaderColor: Color.fromRGBO(54, 142, 194, 76),
         textTheme: TextTheme(
             bodyText1: GoogleFonts.notoSansArabic(),
             bodyText2: GoogleFonts.balooBhaijaan2()),
-        primaryColor: Colors.indigoAccent,
+        primaryColor: Color.fromARGB(255, 65, 78, 195),
+        accentColor: Color(0xff2937B3),
         inputDecorationTheme: InputDecorationTheme(
+            hintStyle: GoogleFonts.balooBhaijaan2(),
             errorStyle: GoogleFonts.balooBhaijaan2(),
             labelStyle: GoogleFonts.balooBhaijaan2(),
             border: OutlineInputBorder(
@@ -25,9 +30,11 @@ void main() {
             focusColor: Colors.indigoAccent),
         appBarTheme: AppBarTheme(
             centerTitle: true,
+            iconTheme: IconThemeData(color: Colors.white),
             elevation: 0,
-            titleTextStyle: GoogleFonts.notoKufiArabic(fontSize: 20),
-            backgroundColor: Colors.indigoAccent,
+            titleTextStyle:
+                GoogleFonts.notoKufiArabic(fontSize: 20, color: Colors.white),
+            backgroundColor: Color.fromRGBO(65, 78, 195, 76).withOpacity(1),
             shadowColor: Colors.white),
       )));
 }

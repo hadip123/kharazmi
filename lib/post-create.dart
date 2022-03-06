@@ -3,11 +3,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as m;
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:http/http.dart';
 import 'package:kharazmi/model.dart';
 import 'package:kharazmi/module.dart';
+import 'package:kharazmi/states-page.dart';
 
 class PostCreate extends StatefulWidget {
   String stateId;
@@ -46,16 +48,16 @@ class _PostCreateState extends State<PostCreate> {
     super.initState();
   }
 
-  final HtmlEditorController textPost = HtmlEditorController();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final QuillController postText = QuillController.basic();
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text('نوشتن'),
+        title: m.Text('نوشتن'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -63,86 +65,103 @@ class _PostCreateState extends State<PostCreate> {
               stateId: selectedState.id,
               title: titleController.text,
               description: descriptionController.text,
-              text: 'await textPost.getText()',
+              text: jsonEncode(postText.document.toDelta().toJson()),
               seens: 0,
               rate: 0));
+          print(response.body);
+
+          if (response.statusCode == 201) {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => StatePage(stateId: stateId)));
+          }
         },
         child: Icon(Icons.done_outline),
       ),
       body: Padding(
         padding: EdgeInsets.all(8.0),
-        child: Column(
+        child: ListView(
           children: [
-            TextField(
-              textAlign: TextAlign.right,
-              controller: titleController,
-              textDirection: TextDirection.rtl,
-              decoration: InputDecoration(
-                hintText: 'سرنویس',
-                hintStyle: GoogleFonts.balooBhaijaan(),
-                alignLabelWithHint: true,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            TextField(
-              controller: descriptionController,
-              textAlign: TextAlign.right,
-              textDirection: TextDirection.rtl,
-              decoration: InputDecoration(
-                hintText: 'توضیحات',
-                hintStyle: GoogleFonts.balooBhaijaan(),
-                alignLabelWithHint: true,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                children: [
-                  Spacer(),
-                  SizedBox(
-                    width: size.width / 2,
-                    child: DropdownButton<String>(
-                      alignment: Alignment.center,
-                      items: states
-                          .map((state) => DropdownMenuItem<String>(
-                                child: Text(
-                                  state.name,
-                                  style: Theme.of(context).textTheme.bodyText1,
-                                ),
-                                alignment: Alignment.center,
-                                value: state.id,
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        selectedState =
-                            states.firstWhere((element) => element.id == value);
-                        setState(() {});
-                      },
-                      value: selectedState.id,
-                    ),
+            Column(
+              children: [
+                TextField(
+                  textAlign: TextAlign.right,
+                  controller: titleController,
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintText: 'سرنویس',
+                    hintStyle: GoogleFonts.balooBhaijaan(),
+                    alignLabelWithHint: true,
                   ),
-                  SizedBox(
-                    width: 10,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  controller: descriptionController,
+                  textAlign: TextAlign.right,
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintText: 'توضیحات',
+                    hintStyle: GoogleFonts.balooBhaijaan(),
+                    alignLabelWithHint: true,
                   ),
-                  Text(
-                    'استان انتخابی شما',
-                    style: GoogleFonts.balooBhaijaan(),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    children: [
+                      Spacer(),
+                      SizedBox(
+                        width: size.width / 2,
+                        child: DropdownButton<String>(
+                          alignment: Alignment.center,
+                          items: states
+                              .map((state) => DropdownMenuItem<String>(
+                                    child: m.Text(
+                                      state.name,
+                                      style:
+                                          Theme.of(context).textTheme.bodyText1,
+                                    ),
+                                    alignment: Alignment.center,
+                                    value: state.id,
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            selectedState = states
+                                .firstWhere((element) => element.id == value);
+                            setState(() {});
+                          },
+                          value: selectedState.id,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      m.Text(
+                        'استان انتخابی شما',
+                        style: GoogleFonts.balooBhaijaan(),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            HtmlEditor(
-              controller: textPost,
-              htmlEditorOptions: HtmlEditorOptions(hint: 'Hello'),
-              htmlToolbarOptions: HtmlToolbarOptions(
-                toolbarType: ToolbarType.nativeGrid,
-              ),
-            ),
+                ),
+                QuillToolbar.basic(
+                  showCenterAlignment: true,
+                  showRightAlignment: true,
+                  showAlignmentButtons: true,
+                  showLeftAlignment: true,
+                  showDirection: true,
+                  showJustifyAlignment: true,
+                  controller: postText,
+                ),
+                QuillEditor.basic(controller: postText, readOnly: false),
+                SizedBox(
+                  height: 300,
+                )
+              ],
+            )
           ],
         ),
       ),

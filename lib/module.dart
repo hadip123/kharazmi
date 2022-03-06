@@ -99,7 +99,19 @@ class Post1 {
           "text": post1.text,
           "seens": post1.seens,
           "rates": [],
-        })); 
+        }));
+
+    return response;
+  }
+
+  static Future<Response> getAllPosts() async {
+    final Response response = await get(Uri.parse('$host/post'));
+
+    return response;
+  }
+
+  static Future<Response> getBestPosts() async {
+    final Response response = await get(Uri.parse('$host/post/best'));
 
     return response;
   }

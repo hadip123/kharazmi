@@ -3,7 +3,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as m;
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart';
 import 'package:kharazmi/model.dart';
@@ -23,6 +25,7 @@ class _PostViewState extends State<PostView> {
   String postName = 'صبر کنید...';
   int seens = 0;
   Error error = Error(false, '');
+  String postText = '{}';
 
   double rating = 3.5;
   _PostViewState(this.postId);
@@ -36,115 +39,99 @@ class _PostViewState extends State<PostView> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      final Response response = await getPost();
-      final Map result = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        rate = result['data']['rate'] + 0.0;
-        final Response ratingResponse = await Rate.getRate(postId);
-        if (ratingResponse.statusCode == 200) {
-          rating = jsonDecode(ratingResponse.body)['data'] + 0.0;
-        } else if (ratingResponse.statusCode == 202) {
-          rating = 4;
-        }
-        postName = result['data']['title'];
-        seens = result['data']['seen'];
-      }
-      setState(() {});
+      await refresh();
     });
     super.initState();
   }
 
+  Future refresh() async {
+    final Response response = await getPost();
+    final Map result = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      rate = result['data']['rate'] + 0.0;
+      final Response ratingResponse = await Rate.getRate(postId);
+      if (ratingResponse.statusCode == 200) {
+        rating = jsonDecode(ratingResponse.body)['data'] + 0.0;
+      } else if (ratingResponse.statusCode == 202) {
+        rating = 4;
+      }
+      postName = result['data']['title'];
+      seens = result['data']['seen'];
+      postText = result['data']['text'];
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      floatingActionButton: CircleAvatar(
-        radius: 30,
-        child: SizedBox(
-          width: 60,
-          height: 40,
-          child: Row(
-            children: [
-              Icon(
-                Icons.star,
-                color: Colors.yellow,
-              ),
-              Text('$rate')
-            ],
+    final json = jsonDecode(postText);
+    QuillController _controller;
+    try {
+      _controller = QuillController(
+          document: Document.fromJson(json),
+          selection: TextSelection.collapsed(offset: 0));
+      final Size size = MediaQuery.of(context).size;
+      return Scaffold(
+        floatingActionButton: CircleAvatar(
+          radius: 30,
+          child: SizedBox(
+            width: 60,
+            height: 40,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.star,
+                  color: Colors.yellow,
+                ),
+                m.Text('$rate')
+              ],
+            ),
           ),
         ),
-      ),
-      appBar: AppBar(
-        title: Text(postName),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundColor: Color.fromARGB(255, 6, 2, 53),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.remove_red_eye_sharp,
-                    color: Colors.blueGrey,
-                  ),
-                  Text(seens.toString()),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: FutureBuilder(
-            future: getPost(),
-            builder: (context, AsyncSnapshot<Response> snapshot) {
-              if (snapshot.hasData) {
-                final Map post = jsonDecode(snapshot.data!.body)['data'];
-                final String author = post['author'];
-                return ListView(children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        post['title'],
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      Divider(),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text('نویسنده این نوشته : $author'),
-                          SizedBox(
-                            width: 30,
-                          ),
-                          Icon(
-                            Icons.remove_red_eye_sharp,
-                            color: Colors.blueGrey,
-                          ),
-                          Text(post['seens'].toString()),
-                          SizedBox(
-                            width: 30,
-                          ),
-                        ],
-                      ),
-                      Divider(),
-                      Html(data: post['text']),
-                      buildRatingBar(),
-                      SizedBox(height: size.width, child: buildCommentsList()),
-                      buildAddComment()
-                    ],
-                  )
-                ]);
-              }
+        appBar: AppBar(
+          title: m.Text(postName),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: FutureBuilder(
+              future: getPost(),
+              builder: (context, AsyncSnapshot<Response> snapshot) {
+                if (snapshot.hasData) {
+                  final Map post = jsonDecode(snapshot.data!.body)['data'];
+                  final String author = post['author'];
+                  return ListView(children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        m.Text(
+                          post['title'],
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        m.Text(author),
+                        Divider(),
+                        QuillEditor.basic(
+                            controller: _controller, readOnly: true),
+                        SizedBox(
+                          height: 200,
+                        ),
+                        buildRatingBar(),
+                        SizedBox(
+                            height: size.width, child: buildCommentsList()),
+                        buildAddComment()
+                      ],
+                    )
+                  ]);
+                }
 
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }),
-      ),
-    );
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }),
+        ),
+      );
+    } catch (e) {
+      return m.Text('data');
+    }
   }
 
   Widget buildCommentsList() {
@@ -160,10 +147,10 @@ class _PostViewState extends State<PostView> {
                   itemCount: commentList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
-                      title: Text(commentList[index]['text'],
+                      title: m.Text(commentList[index]['text'],
                           style: Theme.of(context).textTheme.bodyText1,
                           textDirection: TextDirection.rtl),
-                      subtitle: Text(commentList[index]['author'],
+                      subtitle: m.Text(commentList[index]['author'],
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1!
@@ -172,7 +159,7 @@ class _PostViewState extends State<PostView> {
                           textDirection: TextDirection.rtl),
                       onTap: () {
                         final comment = SnackBar(
-                          content: Text(
+                          content: m.Text(
                             commentList[index]['text'],
                             style: Theme.of(context)
                                 .textTheme
@@ -189,7 +176,7 @@ class _PostViewState extends State<PostView> {
                     );
                   });
             } else if (res.statusCode == 203) {
-              return Text('نظری وجود ندارد');
+              return m.Text('نظری وجود ندارد');
             }
           }
           return Center(
@@ -213,7 +200,7 @@ class _PostViewState extends State<PostView> {
 
                   showDialog(context: context, builder: (_) => commentDialog);
                 },
-                child: Text(
+                child: m.Text(
                   'افزودن نظر',
                   style: Theme.of(context)
                       .textTheme
@@ -242,7 +229,7 @@ class _PostViewState extends State<PostView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
+          m.Text(
             'افزودن نظر',
             style: Theme.of(context)
                 .appBarTheme
@@ -263,7 +250,7 @@ class _PostViewState extends State<PostView> {
                   Comment(postId: postId, text: commentTextController.text));
               if (response.statusCode == 200) {
                 final successAlert = AlertDialog(
-                  content: Text(
+                  content: m.Text(
                     'عملیات موفق آمیز بود.',
                     style: Theme.of(context)
                         .textTheme
@@ -277,7 +264,7 @@ class _PostViewState extends State<PostView> {
                     context: context, builder: (context) => successAlert);
               } else if (response.statusCode == 404) {
                 final errorAlert = AlertDialog(
-                  content: Text(
+                  content: m.Text(
                     'نوشته یافت نشد.',
                     style: Theme.of(context)
                         .textTheme
@@ -292,7 +279,7 @@ class _PostViewState extends State<PostView> {
                 print(response.body);
               }
             },
-            child: Text(
+            child: m.Text(
               'ارسال نظر',
               style: Theme.of(context)
                   .textTheme
@@ -316,7 +303,7 @@ class _PostViewState extends State<PostView> {
         IconButton(
           onPressed: () async {
             final Response response = await Rate.rate(rating, postId);
-            print(response.body);
+            refresh();
             setState(() {});
           },
           icon: Icon(Icons.done),
