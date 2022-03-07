@@ -2,7 +2,7 @@
     package="com.example.kharazmi">
    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="kharazmi"
+        android:label="سفرینو"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

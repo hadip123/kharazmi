@@ -28,10 +28,13 @@ class _AboutUsState extends State<AboutUs> {
             textDirection: TextDirection.rtl,
           ),
           Row(
-            children: [Icon(Icons.message), Text('+۹۱۵۱۸۶۱۸۹۳')],
+            children: const [Icon(Icons.message), Text('+۹۱۵۱۸۶۱۸۹۳')],
           ),
           Row(
-            children: [Icon(Icons.email), Text('safarino.app@hotmail.com')],
+            children: const [
+              Icon(Icons.email),
+              Text('safarino.app@hotmail.com')
+            ],
           ),
         ]),
       ),

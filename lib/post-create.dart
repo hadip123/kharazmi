@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:kharazmi/model.dart';
 import 'package:kharazmi/module.dart';
+import 'package:kharazmi/modules/post_module.dart';
 import 'package:kharazmi/states-page.dart';
 
 class PostCreate extends StatefulWidget {
@@ -61,7 +62,7 @@ class _PostCreateState extends State<PostCreate> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final Response response = await Post1.createPost(Post(
+          final Response response = await PostModule.createPost(Post(
               stateId: selectedState.id,
               title: titleController.text,
               description: descriptionController.text,

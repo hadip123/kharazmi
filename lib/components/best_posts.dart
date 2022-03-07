@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:kharazmi/components/post_item.dart';
 import 'package:kharazmi/module.dart';
+import 'package:kharazmi/modules/post_module.dart';
 
 class BestPosts extends StatefulWidget {
   const BestPosts({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _BestPostsState extends State<BestPosts> {
   Widget build(BuildContext context) {
     return Container(
       child: FutureBuilder<Response>(
-          future: Post1.getBestPosts(),
+          future: PostModule.getBestPosts(),
           builder: (context, AsyncSnapshot<Response> snapshot) {
             if (snapshot.hasData) {
               final posts = jsonDecode(snapshot.data!.body)['data'];

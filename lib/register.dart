@@ -21,8 +21,8 @@ class _RegisterState extends State<Register> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController rePasswordController = TextEditingController();
 
-  bool passwordShow = false;
-  bool rePasswordShow = false;
+  bool passwordShow = true;
+  bool rePasswordShow = true;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -202,6 +202,7 @@ class _RegisterState extends State<Register> {
                         borderRadius: BorderRadius.circular(30.0)),
                     margin: const EdgeInsets.all(10.0),
                     child: TextFormField(
+                      obscureText: rePasswordShow,
                       controller: rePasswordController,
                       validator: (value) {
                         if ((value ?? '').length == 0) {

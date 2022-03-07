@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final IconData passwordIconOn = Icons.visibility;
   final username = TextEditingController();
   final password = TextEditingController();
-  bool showPassword = false;
+  bool showPassword = true;
   @override
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).primaryColor;

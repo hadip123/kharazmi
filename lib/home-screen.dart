@@ -140,32 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             : result['data'][index]['averageOfRates'];
 
                     final String stateName = result['data'][index]['name'];
-                    // return ListTile(
-                    //   onTap: () async {
-                    //     // Navigator.push(
-                    //     //     context,
-                    //     //     MaterialPageRoute(
-                    //     //         builder: (_) => StatePage(
-                    //     //             stateId: result['data'][index]['id'])));
-                    //     Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //             builder: ((context) => QuizScreen())));
-                    //   },
-                    //   title: Text(
-                    //     '${index + 1} - $stateName',
-                    //     textDirection: TextDirection.rtl,
-                    //     style: Theme.of(context).textTheme.bodyText1,
-                    //   ),
-                    //   subtitle: Text(
-                    //     'تعداد پست ها: $numberPosts، رتبه پست ها: $postsRate',
-                    //     textDirection: TextDirection.rtl,
-                    //     style: Theme.of(context)
-                    //         .textTheme
-                    //         .bodyText1!
-                    //         .copyWith(color: Colors.grey),
-                    //   ),
-                    // );
                     return Container(
                       margin: EdgeInsets.all(10.0),
                       width: double.infinity,

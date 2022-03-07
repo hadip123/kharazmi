@@ -115,9 +115,9 @@ class _PostViewState extends State<PostView> {
                           height: 200,
                         ),
                         buildRatingBar(),
+                        buildAddComment(),
                         SizedBox(
                             height: size.width, child: buildCommentsList()),
-                        buildAddComment()
                       ],
                     )
                   ]);
@@ -248,20 +248,18 @@ class _PostViewState extends State<PostView> {
             onPressed: () async {
               final Response response = await Comment1.createComment(
                   Comment(postId: postId, text: commentTextController.text));
-              if (response.statusCode == 200) {
-                final successAlert = AlertDialog(
+              if (response.statusCode == 201) {
+                final successAlert = SnackBar(
                   content: m.Text(
                     'عملیات موفق آمیز بود.',
                     style: Theme.of(context)
                         .textTheme
                         .bodyText1!
-                        .copyWith(fontSize: 16),
+                        .copyWith(fontSize: 16, color: Colors.white),
                     textDirection: TextDirection.rtl,
                   ),
                 );
-
-                showDialog(
-                    context: context, builder: (context) => successAlert);
+                ScaffoldMessenger.of(context).showSnackBar(successAlert);
               } else if (response.statusCode == 404) {
                 final errorAlert = AlertDialog(
                   content: m.Text(

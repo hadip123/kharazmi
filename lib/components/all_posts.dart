@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:kharazmi/components/post_item.dart';
 import 'package:kharazmi/module.dart';
+import 'package:kharazmi/modules/post_module.dart';
 
 class AllPosts extends StatefulWidget {
   const AllPosts({Key? key}) : super(key: key);
@@ -13,34 +14,6 @@ class AllPosts extends StatefulWidget {
 }
 
 class _AllPostsState extends State<AllPosts> {
-  final List posts = [
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-    {"title": "PostTitle", "description": "HHLsljh", "rate": "0.8"},
-  ];
   @override
   void initState() {
     // TODO: implement initState
@@ -51,7 +24,7 @@ class _AllPostsState extends State<AllPosts> {
   Widget build(BuildContext context) {
     return Container(
       child: FutureBuilder<Response>(
-          future: Post1.getAllPosts(),
+          future: PostModule.getAllPosts(),
           builder: (context, AsyncSnapshot<Response> snapshot) {
             if (snapshot.hasData) {
               final posts = jsonDecode(snapshot.data!.body)['data'];
