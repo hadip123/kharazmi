@@ -69,7 +69,6 @@ class _PostCreateState extends State<PostCreate> {
               text: jsonEncode(postText.document.toDelta().toJson()),
               seens: 0,
               rate: 0));
-          print(response.body);
 
           if (response.statusCode == 201) {
             Navigator.push(context,

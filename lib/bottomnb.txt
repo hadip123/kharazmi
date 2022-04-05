@@ -1,0 +1,40 @@
+// Widget buildBottomNavigationBar(BuildContext context) {
+  //   return BottomNavyBar(
+  //     items: <BottomNavyBarItem>[
+  //       BottomNavyBarItem(
+  //           icon: Icon(Icons.home),
+  //           title: Text(
+  //             'خانه',
+  //             style: Theme.of(context).textTheme.bodyText1!.copyWith(
+  //                   color: Theme.of(context).primaryColor,
+  //                 ),
+  //             textDirection: TextDirection.rtl,
+  //           ),
+  //           activeColor: Colors.indigoAccent.shade700),
+  //       BottomNavyBarItem(
+  //           icon: Icon(Icons.settings),
+  //           title: Text(
+  //             'تنظیمات',
+  //             style: Theme.of(context).textTheme.bodyText1!.copyWith(
+  //                   color: Theme.of(context).primaryColor,
+  //                 ),
+  //             textDirection: TextDirection.rtl,
+  //           ),
+  //           activeColor: Colors.indigoAccent),
+  //       BottomNavyBarItem(
+  //           icon: Icon(Icons.info),
+  //           title: Text(
+  //             'درباره',
+  //             style: Theme.of(context).textTheme.bodyText1!.copyWith(
+  //                   color: Color.fromARGB(255, 86, 96, 151),
+  //                 ),
+  //             textDirection: TextDirection.rtl,
+  //           ),
+  //           activeColor: Color.fromARGB(255, 86, 96, 151)),
+  //     ],
+  //     onItemSelected: (int index) => setState(() {
+  //       this.index = index;
+  //     }),
+  //     selectedIndex: index,
+  //   );
+  // }

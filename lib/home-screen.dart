@@ -1,22 +1,17 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
 
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:kharazmi/about_us.dart';
+import 'package:kharazmi/about.dart';
 import 'package:kharazmi/components/all_posts.dart';
 import 'package:kharazmi/components/best_posts.dart';
 import 'package:kharazmi/components/main-page.dart';
 import 'package:kharazmi/config.dart';
-import 'package:kharazmi/login.dart';
-import 'package:kharazmi/module.dart';
-import 'package:kharazmi/register.dart';
+import 'package:kharazmi/model.dart';
+import 'package:kharazmi/settings.dart';
 import 'package:kharazmi/states-page.dart';
-import 'package:kharazmi/thelion.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -28,8 +23,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<String> states = ['خراسان شمالی', 'اردبیل'];
   final scrollController = ScrollController();
-  final nameController = TextEditingController();
-  final lastNameController = TextEditingController();
 
   int index = 0;
   bool error = false;
@@ -47,11 +40,49 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Item> drawerItems = [
+      Item(
+          title: 'انجمن',
+          icon: Icons.account_box_rounded,
+          onTap: () {
+            return 'do_nothing';
+          }),
+      Item(
+          title: 'برترین نوشته ها',
+          icon: Icons.account_box_rounded,
+          onTap: () {
+            return BestPosts();
+          }),
+      Item(
+          title: 'تمام نوشته ها',
+          icon: Icons.account_box_rounded,
+          onTap: () {
+            return AllPosts();
+          }),
+      Item(
+          title: 'استان ها',
+          icon: Icons.list,
+          onTap: () {
+            setState(() {});
+            return 'do_nothing';
+          }),
+      Item(
+          title: 'تنظیمات حساب کاربری',
+          icon: Icons.settings,
+          onTap: () {
+            return Settings();
+          }),
+      Item(
+          title: 'درباره ما',
+          icon: Icons.info,
+          onTap: () {
+            return About();
+          }),
+    ];
+
     return Scaffold(
-        bottomNavigationBar: buildBottomNavigationBar(context),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            build(context);
             setState(() {});
           },
           backgroundColor: Color.fromARGB(255, 66, 51, 7),
@@ -60,66 +91,46 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         appBar: AppBar(
+          // leading: Icon(Icons.home),
           title: Text('سفرینو'),
         ),
-        body: buildR(context));
-  }
-
-  Widget buildR(BuildContext context) {
-    return error
-        ? Center(
-            child: Text('اینترنتت را چک کن'),
+        endDrawer: Drawer(
+            child: ListView(children: <Widget>[
+          Image.asset('assets/images/image-3.jpg',
+              width: 900, height: 200, fit: BoxFit.cover),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text('سفرینو',
+                textDirection: TextDirection.rtl,
+                style: Theme.of(context)
+                    .appBarTheme
+                    .titleTextStyle!
+                    .copyWith(color: Colors.black)),
+          ),
+          Divider(),
+          Column(
+            children: [
+              ...drawerItems.map((item) => ListTile(
+                  onTap: () {
+                    if (item.onTap() != 'do_nothing') {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => item.onTap()));
+                    }
+                    setState(() {});
+                  },
+                  dense: true,
+                  trailing: Icon(item.icon),
+                  iconColor: Theme.of(context).primaryColor,
+                  title: Text(item.title,
+                      textDirection: TextDirection.rtl,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText2!
+                          .copyWith(fontSize: 18))))
+            ],
           )
-        : (index == 0
-            ? MainPage(
-                states: buildHomePage(),
-                bestPosts: BestPosts(),
-                allPosts: AllPosts(),
-              )
-            : index == 1
-                ? buildSettingsPage(context)
-                : buildAboutPage(context));
-  }
-
-  Widget buildBottomNavigationBar(BuildContext context) {
-    return BottomNavyBar(
-      items: <BottomNavyBarItem>[
-        BottomNavyBarItem(
-            icon: Icon(Icons.home),
-            title: Text(
-              'خانه',
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                    color: Theme.of(context).primaryColor,
-                  ),
-              textDirection: TextDirection.rtl,
-            ),
-            activeColor: Colors.indigoAccent.shade700),
-        BottomNavyBarItem(
-            icon: Icon(Icons.settings),
-            title: Text(
-              'تنظیمات',
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                    color: Theme.of(context).primaryColor,
-                  ),
-              textDirection: TextDirection.rtl,
-            ),
-            activeColor: Colors.indigoAccent),
-        BottomNavyBarItem(
-            icon: Icon(Icons.info),
-            title: Text(
-              'درباره',
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                    color: Color.fromARGB(255, 86, 96, 151),
-                  ),
-              textDirection: TextDirection.rtl,
-            ),
-            activeColor: Color.fromARGB(255, 86, 96, 151)),
-      ],
-      onItemSelected: (int index) => setState(() {
-        this.index = index;
-      }),
-      selectedIndex: index,
-    );
+        ])),
+        body: buildHomePage());
   }
 
   Widget buildHomePage() {
@@ -255,181 +266,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(),
             );
           }),
-    );
-  }
-
-  Widget buildSettingsPage(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    return FutureBuilder<http.Response>(
-        future: Account.checkLogin(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final http.Response response = snapshot.data!;
-            if (response.statusCode == 403) {
-              return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView(children: [buildLoginForm(context)]));
-            } else if (response.statusCode == 200) {
-              final Map info = jsonDecode(response.body)['data'];
-              nameController.text = info['name'];
-              lastNameController.text = info['lastName'];
-              return Center(
-                child: SizedBox(
-                  width: size.width / 1.1,
-                  height: size.height / 1.3,
-                  child: Card(
-                    shadowColor: Colors.indigoAccent,
-                    elevation: 10,
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: buildProfileFrom(size)),
-                  ),
-                ),
-              );
-            }
-          }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        });
-    ;
-  }
-
-  Widget buildProfileFrom(Size size) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        ListTile(
-          title: Text(
-            'پروفایل',
-            style: Theme.of(context)
-                .textTheme
-                .bodyText2!
-                .copyWith(fontSize: 17, fontWeight: FontWeight.bold),
-            textDirection: TextDirection.rtl,
-          ),
-        ),
-        TextField(
-          controller: nameController,
-          decoration: InputDecoration(labelText: 'نام'),
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        TextField(
-          controller: lastNameController,
-          decoration: InputDecoration(labelText: 'نام خانوادگی'),
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        ElevatedButton(
-            onPressed: () async {
-              final http.Response response = await Account.updateProfile(
-                  nameController.text, lastNameController.text);
-              if (response.statusCode == 201) {
-                final success = SnackBar(
-                    content: Text(
-                  'عملیات موفق بود',
-                  style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                        color: Colors.white,
-                      ),
-                  textDirection: TextDirection.rtl,
-                ));
-
-                ScaffoldMessenger.of(context).showSnackBar(success);
-              } else if (response.statusCode == 400) {
-                final List<dynamic> errors =
-                    jsonDecode(response.body)['message'];
-                final error = SnackBar(
-                    content: Text(
-                  errors.join('\n'),
-                  style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                        color: Colors.white,
-                      ),
-                  textDirection: TextDirection.rtl,
-                ));
-
-                ScaffoldMessenger.of(context).showSnackBar(error);
-              } else if (response.statusCode == 404) {}
-            },
-            style: ElevatedButton.styleFrom(
-                fixedSize: Size(size.width, 40),
-                elevation: 0,
-                primary: Theme.of(context).primaryColor),
-            child: Text(
-              'بروزرسانی',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1!
-                  .copyWith(fontSize: 16, color: Colors.white),
-            )),
-        Spacer(),
-        ElevatedButton(
-            onPressed: () async {
-              await Data.remove('cookie');
-              setState(() {});
-            },
-            style: ElevatedButton.styleFrom(
-                fixedSize: Size(size.width, 40),
-                elevation: 0,
-                primary: Theme.of(context).errorColor),
-            child: Text(
-              'خروج',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1!
-                  .copyWith(fontSize: 16, color: Colors.white),
-            )),
-      ],
-    );
-  }
-
-  Widget buildAboutPage(BuildContext context) {
-    return AboutUs();
-  }
-
-  Widget buildLoginForm(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      // ignore: prefer_const_literals_to_create_immutables
-      children: [
-        Image.asset('assets/images/login.jpg'),
-        ListTile(
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => LoginPage()));
-          },
-          trailing: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(1),
-              child: Icon(Icons.login)),
-          title: Text(
-            'ورود به حساب کاربری',
-            textDirection: TextDirection.rtl,
-            style: Theme.of(context)
-                .appBarTheme
-                .titleTextStyle!
-                .copyWith(fontSize: 16, color: Colors.black),
-          ),
-        ),
-        ListTile(
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => Register()));
-          },
-          trailing: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(1),
-              child: Icon(Icons.account_box_rounded)),
-          title: Text(
-            'ثبت نام',
-            textDirection: TextDirection.rtl,
-            style: Theme.of(context)
-                .appBarTheme
-                .titleTextStyle!
-                .copyWith(fontSize: 16, color: Colors.black),
-          ),
-        ),
-      ],
     );
   }
 }

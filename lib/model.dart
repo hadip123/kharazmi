@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 class Post {
   String stateId;
   String title;
@@ -49,4 +51,19 @@ class Error {
   String message;
 
   Error(this.exist, this.message);
+}
+
+class Run {
+  Function() fnc;
+  String status;
+
+  Run({required this.fnc, required this.status});
+}
+
+class Item {
+  String title;
+  IconData icon;
+  dynamic Function() onTap;
+
+  Item({required this.title, required this.icon, required this.onTap});
 }

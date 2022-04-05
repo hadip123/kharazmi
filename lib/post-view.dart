@@ -10,6 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart';
 import 'package:kharazmi/model.dart';
 import 'package:kharazmi/module.dart';
+import 'package:kharazmi/states-page.dart';
 
 class PostView extends StatefulWidget {
   String postId;
@@ -23,7 +24,6 @@ class _PostViewState extends State<PostView> {
   String postId;
   double rate = 0;
   String postName = 'صبر کنید...';
-  int seens = 0;
   Error error = Error(false, '');
   String postText = '{}';
 
@@ -38,6 +38,7 @@ class _PostViewState extends State<PostView> {
 
   @override
   void initState() {
+    print('Enterd');
     Future.delayed(Duration.zero, () async {
       await refresh();
     });
@@ -56,8 +57,14 @@ class _PostViewState extends State<PostView> {
         rating = 4;
       }
       postName = result['data']['title'];
-      seens = result['data']['seen'];
       postText = result['data']['text'];
+    } else if (response.statusCode == 404) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => StatePage(stateId: result['stateId'])));
+    } else {
+      print(response.body);
     }
     setState(() {});
   }
@@ -96,6 +103,7 @@ class _PostViewState extends State<PostView> {
           child: FutureBuilder(
               future: getPost(),
               builder: (context, AsyncSnapshot<Response> snapshot) {
+                print('I got it');  
                 if (snapshot.hasData) {
                   final Map post = jsonDecode(snapshot.data!.body)['data'];
                   final String author = post['author'];
@@ -130,7 +138,9 @@ class _PostViewState extends State<PostView> {
         ),
       );
     } catch (e) {
-      return m.Text('data');
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
   }
 
@@ -142,7 +152,7 @@ class _PostViewState extends State<PostView> {
             final Response res = snapshot.data!;
             if (res.statusCode == 200) {
               final List commentList = jsonDecode(snapshot.data!.body)['data'];
-              print(commentList.length);
+
               return ListView.builder(
                   itemCount: commentList.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -273,8 +283,6 @@ class _PostViewState extends State<PostView> {
                 );
 
                 showDialog(context: context, builder: (context) => errorAlert);
-              } else {
-                print(response.body);
               }
             },
             child: m.Text(

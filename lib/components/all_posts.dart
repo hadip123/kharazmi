@@ -22,31 +22,34 @@ class _AllPostsState extends State<AllPosts> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: FutureBuilder<Response>(
-          future: PostModule.getAllPosts(),
-          builder: (context, AsyncSnapshot<Response> snapshot) {
-            if (snapshot.hasData) {
-              final posts = jsonDecode(snapshot.data!.body)['data'];
-              return ListView.builder(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  String stateName = posts[index]['stateName'];
-                  return PostItem(
-                    title: posts[index]['title'],
-                    description: 'استان : $stateName',
-                    rate: posts[index]['rate'].toString() == 'NaN'
-                        ? '0'
-                        : posts[index]['rate'].toString(),
-                    postId: posts[index]['_id'],
-                  );
-                },
+    return Scaffold(
+      appBar: AppBar(title: Text('کل نوشته ها')),
+      body: Container(
+        child: FutureBuilder<Response>(
+            future: PostModule.getAllPosts(),
+            builder: (context, AsyncSnapshot<Response> snapshot) {
+              if (snapshot.hasData) {
+                final posts = jsonDecode(snapshot.data!.body)['data'];
+                return ListView.builder(
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    String stateName = posts[index]['stateName'];
+                    return PostItem(
+                      title: posts[index]['title'],
+                      description: 'استان : $stateName',
+                      rate: posts[index]['rate'].toString() == 'NaN'
+                          ? '0'
+                          : posts[index]['rate'].toString(),
+                      postId: posts[index]['_id'],
+                    );
+                  },
+                );
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
+            }),
+      ),
     );
   }
 }

@@ -120,7 +120,6 @@ class _LoginPageState extends State<LoginPage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                         messageBar(context, 'عملیات موفقیت آمیز بود'));
                     final String cookie = response.headers['set-cookie'] ?? '';
-                    print(cookie);
                     Navigator.pop(context);
                     await Data.add('cookie', cookie);
                   } else if (response.statusCode == 401) {

@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:kharazmi/post-view.dart';
 
@@ -79,6 +81,7 @@ class _PostItemState extends State<PostItem> {
           icon:
               Icon(Icons.keyboard_arrow_left, color: Colors.white, size: 30.0),
           onPressed: () {
+            print("Entering");
             Navigator.push(
                 context,
                 MaterialPageRoute(
