@@ -69,9 +69,10 @@ class _StatePageState extends State<StatePage> {
                   itemCount: state.length,
                   itemBuilder: (BuildContext context, int index) {
                     // return buildPostListTile(state, index);
+                    final description = '${state[index]['description']}    ';
                     return PostItem(
                         title: state[index]['title'],
-                        description: state[index]['description'],
+                        description: description,
                         rate: state[index]['rate'].toString(),
                         postId: state[index]['_id']);
                   });
@@ -105,10 +106,8 @@ class _StatePageState extends State<StatePage> {
               return Container();
             }
           }
-          return Center(
-            child: CircularProgressIndicator(
-                color: Theme.of(context).primaryColor),
-          );
+          return CircularProgressIndicator(
+              color: Theme.of(context).primaryColor);
         });
   }
 
@@ -123,8 +122,8 @@ class _StatePageState extends State<StatePage> {
         textDirection: TextDirection.rtl,
       ),
       subtitle: Text(
-        state[index]['description'],
-        textDirection: TextDirection.rtl,
+        'd${state[index]['description'].substring(0, 5)}',
+        textDirection: TextDirection.ltr,
       ),
       trailing: CircleAvatar(
           backgroundColor: Theme.of(context).primaryColor,

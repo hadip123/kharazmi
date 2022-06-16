@@ -41,21 +41,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Item> drawerItems = [
-      Item(
-          title: 'انجمن',
-          icon: Icons.account_box_rounded,
-          onTap: () {
-            return 'do_nothing';
-          }),
+      // Item(
+      //     title: 'انجمن',
+      //     icon: Icons.account_box_rounded,
+      //     onTap: () {
+      //       return 'do_nothing';
+      //     }),
       Item(
           title: 'برترین نوشته ها',
-          icon: Icons.account_box_rounded,
+          icon: Icons.favorite,
           onTap: () {
             return BestPosts();
           }),
       Item(
           title: 'تمام نوشته ها',
-          icon: Icons.account_box_rounded,
+          icon: Icons.list_alt,
           onTap: () {
             return AllPosts();
           }),
@@ -77,6 +77,12 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.info,
           onTap: () {
             return About();
+          }),
+      Item(
+          title: 'راهنما',
+          icon: Icons.info,
+          onTap: () {
+            return 'do nothing';
           }),
     ];
 

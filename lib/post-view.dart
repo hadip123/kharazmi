@@ -30,6 +30,8 @@ class _PostViewState extends State<PostView> {
   double rating = 3.5;
   _PostViewState(this.postId);
 
+  bool commentLoading = false;
+
   Future<Response> getPost() async {
     final Response response = await get(Uri.parse('$host/post/$postId'));
 
@@ -103,7 +105,7 @@ class _PostViewState extends State<PostView> {
           child: FutureBuilder(
               future: getPost(),
               builder: (context, AsyncSnapshot<Response> snapshot) {
-                print('I got it');  
+                print('I got it');
                 if (snapshot.hasData) {
                   final Map post = jsonDecode(snapshot.data!.body)['data'];
                   final String author = post['author'];
@@ -234,72 +236,84 @@ class _PostViewState extends State<PostView> {
   Widget buildCommentButton() {
     final Size size = MediaQuery.of(context).size;
     final commentTextController = TextEditingController();
-    return Container(
-      height: 180,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          m.Text(
-            'افزودن نظر',
-            style: Theme.of(context)
-                .appBarTheme
-                .titleTextStyle!
-                .copyWith(fontSize: 18),
-            textDirection: TextDirection.rtl,
-          ),
-          TextField(
-            controller: commentTextController,
-            decoration: InputDecoration(labelText: 'نظر خود را بنویسید'),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          TextButton(
-            onPressed: () async {
-              final Response response = await Comment1.createComment(
-                  Comment(postId: postId, text: commentTextController.text));
-              if (response.statusCode == 201) {
-                final successAlert = SnackBar(
-                  content: m.Text(
-                    'عملیات موفق آمیز بود.',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1!
-                        .copyWith(fontSize: 16, color: Colors.white),
-                    textDirection: TextDirection.rtl,
-                  ),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(successAlert);
-              } else if (response.statusCode == 404) {
-                final errorAlert = AlertDialog(
-                  content: m.Text(
-                    'نوشته یافت نشد.',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1!
-                        .copyWith(fontSize: 16),
-                    textDirection: TextDirection.rtl,
-                  ),
-                );
+    return !commentLoading
+        ? Container(
+            height: 180,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                m.Text(
+                  'افزودن نظر',
+                  style: Theme.of(context)
+                      .appBarTheme
+                      .titleTextStyle!
+                      .copyWith(fontSize: 18),
+                  textDirection: TextDirection.rtl,
+                ),
+                TextField(
+                  controller: commentTextController,
+                  decoration: InputDecoration(labelText: 'نظر خود را بنویسید'),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      commentLoading = true;
+                    });
+                    final Response response = await Comment1.createComment(
+                        Comment(
+                            postId: postId, text: commentTextController.text));
+                    setState(() {
+                      commentLoading = false;
+                    });
+                    if (response.statusCode == 201) {
+                      final successAlert = SnackBar(
+                        content: m.Text(
+                          'عملیات موفق آمیز بود.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1!
+                              .copyWith(fontSize: 16, color: Colors.white),
+                          textDirection: TextDirection.rtl,
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(successAlert);
+                    } else if (response.statusCode == 404) {
+                      final errorAlert = AlertDialog(
+                        content: m.Text(
+                          'نوشته یافت نشد.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1!
+                              .copyWith(fontSize: 16),
+                          textDirection: TextDirection.rtl,
+                        ),
+                      );
 
-                showDialog(context: context, builder: (context) => errorAlert);
-              }
-            },
-            child: m.Text(
-              'ارسال نظر',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1!
-                  .copyWith(color: Theme.of(context).primaryColor),
-            ),
-            style: TextButton.styleFrom(
-              fixedSize: Size(size.width, 50),
-              primary: Theme.of(context).primaryColor,
+                      showDialog(
+                          context: context, builder: (context) => errorAlert);
+                    } else {
+                      print(response.body);
+                    }
+                  },
+                  child: m.Text(
+                    'ارسال نظر',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(color: Theme.of(context).primaryColor),
+                  ),
+                  style: TextButton.styleFrom(
+                    fixedSize: Size(size.width, 50),
+                    primary: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
             ),
           )
-        ],
-      ),
-    );
+        : CircularProgressIndicator();
   }
 
   Widget buildRatingBar() {

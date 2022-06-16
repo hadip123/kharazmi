@@ -100,6 +100,7 @@ class _PostCreateState extends State<PostCreate> {
                   controller: descriptionController,
                   textAlign: TextAlign.right,
                   textDirection: TextDirection.rtl,
+                  maxLength: 20,
                   decoration: InputDecoration(
                     hintText: 'توضیحات',
                     hintStyle: GoogleFonts.balooBhaijaan(),
