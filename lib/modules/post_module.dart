@@ -34,4 +34,11 @@ class PostModule {
 
     return response;
   }
+
+  static Future<Response> searchByName(String searchField) async {
+    final Response response =
+        await get(Uri.parse('$host/state/search/$searchField'));
+
+    return response;
+  }
 }

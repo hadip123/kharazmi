@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,10 @@ import 'package:kharazmi/components/all_posts.dart';
 import 'package:kharazmi/components/best_posts.dart';
 import 'package:kharazmi/components/main-page.dart';
 import 'package:kharazmi/config.dart';
+import 'package:kharazmi/help.dart';
 import 'package:kharazmi/model.dart';
+import 'package:kharazmi/modules/post_module.dart';
+import 'package:kharazmi/search_result.dart';
 import 'package:kharazmi/settings.dart';
 import 'package:kharazmi/states-page.dart';
 
@@ -21,8 +25,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> states = ['خراسان شمالی', 'اردبیل'];
+  List states = [];
   final scrollController = ScrollController();
+  final searchValueController = TextEditingController();
 
   int index = 0;
   bool error = false;
@@ -40,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     final List<Item> drawerItems = [
       // Item(
       //     title: 'انجمن',
@@ -82,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'راهنما',
           icon: Icons.info,
           onTap: () {
-            return 'do nothing';
+            return Help();
           }),
     ];
 
@@ -136,7 +142,43 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           )
         ])),
-        body: buildHomePage());
+        body: Column(
+          children: [
+            SizedBox(
+              width: size.width,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                        width: size.width - 70,
+                        child: TextField(
+                          controller: searchValueController,
+                          textDirection: TextDirection.rtl,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1!
+                              .copyWith(fontSize: 16),
+                        )),
+                    SizedBox(width: 10),
+                    IconButton(
+                      onPressed: () async {
+                        if (searchValueController.text == '') return;
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => SearchResult(
+                                    searchName: searchValueController.text)));
+                      },
+                      icon: Icon(Icons.search),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: size.height - 140, child: buildHomePage()),
+          ],
+        ));
   }
 
   Widget buildHomePage() {
@@ -146,17 +188,16 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (_, AsyncSnapshot<Map> snapshot) {
             if (snapshot.hasData) {
               final Map result = snapshot.data!;
+              states = result['data'];
               return ListView.builder(
-                  itemCount: result['data'].length,
+                  itemCount: states.length,
                   itemBuilder: (_, int index) {
-                    final int numberPosts =
-                        result['data'][index]['numberOfPosts'];
-                    final postsRate =
-                        result['data'][index]['averageOfRates'] == 'NaN'
-                            ? '0'
-                            : result['data'][index]['averageOfRates'];
+                    final int numberPosts = states[index]['numberOfPosts'];
+                    final postsRate = states[index]['averageOfRates'] == 'NaN'
+                        ? '0'
+                        : states[index]['averageOfRates'];
 
-                    final String stateName = result['data'][index]['name'];
+                    final String stateName = states[index]['name'];
                     return Container(
                       margin: EdgeInsets.all(10.0),
                       width: double.infinity,
@@ -205,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   backgroundColor:
                                       Color.fromARGB(22, 26, 66, 26),
                                   child: Image.network(
-                                    (result['data'][index]['image'] ??
+                                    (states[index]['image'] ??
                                         'https://picsum.photos/45'),
                                     width: 59,
                                     height: 59,
@@ -237,8 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => StatePage(
-                                            stateId: result['data'][index]
-                                                ['id'])));
+                                            stateId: states[index]['id'])));
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
