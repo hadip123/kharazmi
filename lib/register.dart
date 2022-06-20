@@ -185,11 +185,11 @@ class _RegisterState extends State<Register> {
                                 margin: const EdgeInsets.only(right: 20.0),
                                 child: passwordShow
                                     ? const Icon(
-                                        Icons.visibility,
+                                        Icons.visibility_off,
                                         color: Colors.black87,
                                       )
                                     : const Icon(
-                                        Icons.visibility_off,
+                                        Icons.visibility,
                                         color: Colors.black87,
                                       ),
                               ),
@@ -359,6 +359,7 @@ class _RegisterState extends State<Register> {
               height: 20,
             ),
             TextFormField(
+              textDirection: TextDirection.rtl,
               validator: (value) {
                 if ((value ?? '').length == 0) {
                   return 'چیزی بنویسید';
@@ -366,7 +367,6 @@ class _RegisterState extends State<Register> {
               },
               controller: nameController,
               decoration: const InputDecoration(labelText: 'نام'),
-              textDirection: TextDirection.rtl,
             ),
             const SizedBox(
               height: 20,
